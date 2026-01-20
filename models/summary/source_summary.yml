@@ -1,0 +1,16 @@
+version: 2
+
+sources:
+  - name: Summary
+    database: "{{ target.project }}"
+    schema: "{{ 'dev_mc_data_statistics' if target.name == 'dev' else 'dbt_models_summary' }}"
+    loader: Manual
+
+    tables:
+      - name: exchange_rates
+        description: Each record represents an exchange_rates to USD
+        columns:
+          - name: currency
+          - name: rate
+      - name: user_extra
+        description: Each record represents a user_extra

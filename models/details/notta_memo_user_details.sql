@@ -1,0 +1,172 @@
+-- 绑定硬件的user数据
+
+-- user 首次绑定时间
+-- user 首次绑定ws
+-- user 首次绑定ws 当天的权益
+-- user 首次绑定ws 当天的权益是否试用
+-- user 绑定类型
+-- user 名下ws 首次发放starter plan 时间
+-- user 名下ws 首次从starter plan 升级时间
+-- user 当前绑定状态
+-- user 当前绑定wsid
+
+
+
+with user as ( -- 过滤内部用户取用户数据
+    select
+        uid
+        ,email
+        ,signup_date
+        ,signup_platform
+        ,case when signup_country in ('Japan','United States','unknown') then signup_country else 'Other' end as signup_country
+        ,date(first_paid_plan_start_time) as first_paid_date
+        ,is_paid
+    from dbt_models_details.user_details
+    where pt=date_add(date(current_timestamp()),interval -1 day)
+
+),
+
+smart_device_bind_user as ( -- user 首次绑定时间，当前绑定状态
+	select
+	    a.uid
+	    ,b.email
+	    ,b.signup_platform
+	    ,b.signup_country
+	    ,b.signup_date
+	    ,b.first_paid_date
+	    ,b.is_paid
+	    ,date(timestamp_seconds(min(bind_time))) as first_bind_date
+	    ,min_by(starter_workspace_id,bind_time) as first_bind_ws_id
+		,max_by(status,bind_time) as current_bind_status
+		,max_by(case when status=1 then a.starter_workspace_id else null end,bind_time) as current_bind_ws_id
+	from `notta-data-analytics.notta_aurora.langogo_user_space_user_ai_device` a
+	inner join `notta-data-analytics.notta_aurora.langogo_user_space_ai_device_info` c on a.device_id=c.id and c.device_type=2 -- memo
+	inner join user b on a.uid=b.uid
+	group by
+		a.uid
+	    ,b.email
+	    ,b.signup_platform
+	    ,b.signup_country
+	    ,b.signup_date
+	    ,b.first_paid_date
+	    ,b.is_paid
+),
+
+upgrade_date as ( -- user own 的ws里 首次从starter 升级的日期 及 wsid
+	select
+		owner_uid as uid
+		,min(case when a.goods_plan_type=0 then calendar_date else null end) as first_starter_plan_date
+		,min(case when a.goods_plan_type!=0 and a.previous_goods_plan_type=0 then calendar_date else null end) as first_upgrade_from_starter_date
+		,min_by(workspace_id,case when a.goods_plan_type!=0 and a.previous_goods_plan_type=0 then calendar_date else null end) as first_upgrade_from_starter_ws_id
+	from(
+		select
+		 a.workspace_id
+		 ,b.owner_uid
+		 ,a.calendar_date
+		 ,a.goods_plan_type
+		 ,a.is_trial
+		 ,lag(a.goods_plan_type) over(partition by a.workspace_id order by calendar_date asc) as previous_goods_plan_type
+		from `notta-data-analytics.dbt_models_details.workspace_daily_paid_plan` a
+		inner join `notta-data-analytics.notta_aurora.langogo_user_space_workspace` b on a.workspace_id=b.workspace_id
+		where calendar_date<=date(current_timestamp()) -- 取截止昨天的数据
+			and is_trial=0-- 排除试用
+			and b.status!=2-- 排除已删除
+		) a
+	group by
+		owner_uid
+
+),
+
+user_memo_record as (
+
+select
+	found_uid as uid
+	,date(min(a.create_date)) as first_memo_record_date
+from `dbt_models_details.stg_aurora_record` a
+left join `notta-data-analytics.notta_aurora.langogo_user_space_records_device_info` d ON a.record_id = d.record_id
+where
+a.media_source=8
+and (
+        d.device_brand = 'Memo'
+        or d.device_brand is null
+      )
+group by
+	found_uid
+),
+
+
+user_detail as (
+
+	select
+		b.uid
+		,b.email
+		,b.signup_date
+		,b.signup_platform
+	    ,b.signup_country
+	    ,b.is_paid
+	    ,b.first_paid_date
+	    ,b.first_bind_date
+	    ,b.first_bind_ws_id
+	    ,e.first_memo_record_date
+	    ,a.goods_plan_type as first_bind_date_plan_type
+	    ,a.is_trial as first_bind_date_plan_is_trial
+	    ,b.current_bind_ws_id
+	    ,b.current_bind_status
+	    ,d.goods_plan_type as current_bind_ws_plan_type
+	    ,c.first_starter_plan_date
+	    ,c.first_upgrade_from_starter_date
+	    ,c.first_upgrade_from_starter_ws_id
+	from smart_device_bind_user b
+	left join `notta-data-analytics.dbt_models_details.workspace_daily_paid_plan` a on cast(a.workspace_id as int)=b.first_bind_ws_id and a.calendar_date=b.first_bind_date
+	left join `notta-data-analytics.dbt_models_details.workspace_daily_paid_plan` d on cast(d.workspace_id as int)=b.current_bind_ws_id and d.calendar_date=date_sub(date(current_timestamp()),interval 1 day)
+	left join upgrade_date c on c.uid=b.uid
+	left join user_memo_record e on e.uid=b.uid
+
+)
+
+select
+    uid
+    ,email
+    ,signup_date
+    ,signup_platform
+    ,signup_country
+    ,first_bind_date
+    ,first_bind_ws_id
+    ,case when first_memo_record_date is null then 0 else 1 end as is_create_memo_record
+    ,first_memo_record_date
+    ,case
+    	when first_bind_date_plan_type is null then null
+    	when first_bind_date_plan_type=0 then 'Starter'
+    	when first_bind_date_plan_type=1 then 'Pro'
+    	when first_bind_date_plan_type=2 then 'Biz'
+    	when first_bind_date_plan_type=3 then 'Enterprise'
+    	else 'unknown'
+    	end as first_bind_date_plan_type
+    ,first_bind_date_plan_is_trial
+    ,current_bind_ws_id
+    ,case
+    	when current_bind_status=0 then 'Unbind'
+    	when current_bind_status=1 then 'Binding'
+    	when current_bind_status=2 then 'Unbinding'
+    	else 'else'
+    end as current_bind_status
+    ,case
+    	when current_bind_ws_plan_type is null then null
+    	when current_bind_ws_plan_type=0 then 'Starter'
+    	when current_bind_ws_plan_type=1 then 'Pro'
+    	when current_bind_ws_plan_type=2 then 'Biz'
+    	when current_bind_ws_plan_type=3 then 'Enterprise'
+    	else 'unknown'
+    	end as current_bind_ws_plan_type
+    ,first_starter_plan_date
+    ,first_upgrade_from_starter_date
+    ,first_upgrade_from_starter_ws_id
+    ,is_paid
+    ,first_paid_date
+    ,case when date_diff(first_bind_date,signup_date,DAY)<=3 then 'New User'
+		when date_diff(first_bind_date,signup_date,DAY)>3 and is_paid=0 and first_bind_date_plan_type>1 and first_bind_date_plan_is_trial=0 then 'Existing WS Member'
+		when date_diff(first_bind_date,signup_date,DAY)>3 and (is_paid=0 or first_paid_date>first_bind_date) then 'Existing Free User'
+		when date_diff(first_bind_date,signup_date,DAY)>3 and is_paid=1 and first_paid_date<=first_bind_date and first_bind_date_plan_type!=0 and first_bind_date_plan_is_trial=0 then 'Existing Paying User'
+		when date_diff(first_bind_date,signup_date,DAY)>3 and is_paid=1 and first_paid_date<first_bind_date  then 'Churned User'
+	else 'Other Old User' end as bind_user_type
+from user_detail

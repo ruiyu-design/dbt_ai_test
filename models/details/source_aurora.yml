@@ -1,0 +1,178 @@
+version: 2
+
+sources:
+  - name: Aurora
+    database: "{{ target.project }}"
+    schema: "{{ 'dev_mc_data_statistics' if target.name == 'dev' else 'notta_aurora' }}"
+    loader: DataStream
+
+    tables:
+      - name: payment_center_order_table
+        description: Each record represents an invoice from a user
+        columns:
+          - name: id
+          - name: order_sn
+          - name: origin_order_sn
+          - name: uid
+          - name: db_channel
+          - name: goods_id
+          - name: goods_type
+          - name: pay_channel
+          - name: third_goods_id
+          - name: client_type
+          - name: bill_source
+          - name: goods_price
+          - name: goods_currency
+          - name: status
+          - name: is_trial
+          - name: trans_id
+          - name: origin_trans_id
+          - name: pay_amount
+          - name: pay_currency
+          - name: create_time
+          - name: update_time
+          - name: confirmation
+          - name: workspace_id
+          - name: private
+          - name: seats_size
+          - name: entry_time
+          - name: failure_time
+          - name: promotion_code
+      - name: langogo_user_space_users
+        description: Each record represents an registered user
+        columns:
+          - name: id
+          - name: uid
+          - name: username
+          - name: email
+          - name: phone
+          - name: area_code
+          - name: region
+          - name: account_type
+          - name: nickname
+          - name: gender
+          - name: avatar
+          - name: password
+          - name: status
+          - name: login_time
+          - name: web_login_status
+          - name: os_type
+          - name: create_time
+          - name: app_store_channel
+          - name: m5_pass
+          - name: client_version
+          - name: language
+          - name: mobile_id
+          - name: sha256_pass
+      - name: langogo_user_space_records
+        description: Each record represents a transliteration record
+      - name: langogo_user_space_records0
+      - name: langogo_user_space_records1
+      - name: langogo_user_space_records2
+      - name: langogo_user_space_records3
+      - name: langogo_user_space_records4
+      - name: langogo_user_space_records5
+      - name: langogo_user_space_records6
+      - name: langogo_user_space_records7
+      - name: langogo_user_space_records8
+      - name: langogo_user_space_records9
+      - name: langogo_user_space_records10
+      - name: langogo_user_space_records11
+      - name: langogo_user_space_records12
+      - name: langogo_user_space_records13
+      - name: langogo_user_space_records14
+      - name: langogo_user_space_records15
+      - name: langogo_user_space_records16
+      - name: langogo_user_space_records17
+      - name: langogo_user_space_records18
+      - name: langogo_user_space_records19
+      - name: langogo_user_space_records20
+      - name: langogo_user_space_records21
+      - name: langogo_user_space_records22
+      - name: langogo_user_space_records23
+      - name: langogo_user_space_records24
+      - name: langogo_user_space_records25
+      - name: langogo_user_space_records26
+      - name: langogo_user_space_records27
+      - name: langogo_user_space_records28
+      - name: langogo_user_space_records29
+      - name: langogo_user_space_records30
+      - name: langogo_user_space_records31
+      - name: langogo_user_space_records32
+      - name: user_extra
+        description: Real-time synchronization by the server, including the country and city where the user registered and the time of last subscription
+      - name: langogo_user_space_workspace
+        description: Each record represents a workspace
+      - name: langogo_user_space_workspace_setting
+        description: Each record represents a workspace setting
+      - name: notta_mall_interest_interest
+        description: Each record represents an interest
+      - name: notta_mall_interest_goods
+        description: Each record represents an goods
+      - name: langogo_user_space_member
+        description: Each record represents a member
+      - name: langogo_user_space_ai_tasks
+        description: Each record represents a task
+      - name: langogo_user_space_ai_prompts
+        description: Each record represents a prompt
+      - name: calendar_user_scheduler_event
+        description: Each record represents a event
+      - name: mc_data_analysis_meeting_analysis
+        description: Each record represents a meeting
+      - name: langogo_user_space_vocabulary
+        description: Each record represents a vocabulary
+      - name: langogo_user_space_third_login
+        description: Each record represents a third login
+      - name: langogo_user_space_agent_record_relation
+        description: Each record represents an agent record relation
+      - name: langogo_user_space_agents
+        description: Each record represents an AI agent
+      - name: langogo_user_space_agent_chat
+        description: Each record represents an agent chat
+      - name: langogo_user_space_agent_insight
+        description: Each record represents an agent insight
+      - name: langogo_user_space_integration_deals
+        description: Each record represents an integration deal
+      - name: langogo_user_space_integration_tasks
+        description: Each record represents an integration task
+      - name: langogo_user_space_resource_group
+        description: Each record represents a resource group
+  - name: Statistics
+    database: "{{ target.project }}"
+    schema: "{{ 'dev_mc_data_statistics' if target.name == 'dev' else 'mc_data_statistics' }}"
+    loader: DataStream
+    tables:
+      - name: notta_summary_ai_records
+        description: Each record represents a summary
+  - name: Ga4
+    database: "{{ target.project }}"
+    schema: "{{ 'dev_mc_data_statistics' if target.name == 'dev' else 'dbt_models_ga4' }}"
+    loader: Ga4
+    tables:
+      - name: stg_ga4__event_sign_up
+      - name: stg_ga4__event_keep_alive
+  - name: Hubspot
+    database: "{{ target.project }}"
+    schema: "{{ 'dev_mc_data_statistics' if target.name == 'dev' else 'notta_hubspot' }}"
+    loader: DataStream
+    tables:
+      - name: deals
+# ### --------------------------------- pay_channel --------------------------------- ###
+# @enum pay_channel
+# @value 1 "ali_app" - Alipay App payment
+# @value 2 "weixin" - WeChat QR code payment
+# @value 3 "paypal" - PayPal payment
+# @value 4 "all_pay" - Allpay payment
+# @value 5 "stripe" - Stripe payment
+# @value 6 "apple" - Apple Pay
+# @value 7 "google" - Google Pay
+# @value 8 "stripe_custom" - Stripe custom payment (currently in use)
+# @value 9 "weixin_app" - In-app WeChat payment
+# @value 10 "ali_qr" - Alipay QR code payment
+
+# Notes:
+# - Channels 1, 2, 9, and 10 are used for domestic apps.
+# - Channels 3, 4, and 5 are used for translation devices.
+# - Channel 6 is for Apple Pay.
+# - Channel 7 is for Google Pay.
+# - Channel 8 is for web payments.
