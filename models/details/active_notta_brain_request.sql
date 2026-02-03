@@ -1,4 +1,4 @@
-  11{{ config(
+{{ config(
     materialized = 'table',
     partition_by = {
       "field": "raw_timestamp",
