@@ -1,4 +1,3 @@
-
 with order_table as
 (
 select
@@ -159,7 +158,7 @@ select
 	,case when campaign in ('None','unknown') then null else campaign end as campaign
 	,first_user_landing_page
 	,count(distinct case when b.rn=1 then a.uid else null end) as new_paid_users
-	,round(sum(case when b.rn=1 then b.pay_amount/b.exchange_rate/100 else 0 end),2) as first_payment_rev
+    ,round(sum(case when b.rn=1 then b.pay_amount/b.exchange_rate/100 else 0 end),2) as first_payment_rev -- [TEST] 首单收入：仅统计用户生命周期内第一笔订单的实付金额
 	,round(sum(b.pay_amount/b.exchange_rate/100),2) as cumulative_rev
 from `dbt_models_details.user_details` a
 inner join order_table b on a.uid=b.uid
@@ -453,12 +452,3 @@ select
 	,COALESCE(cumulative_rev,0) as cumulative_rev
 from campaign_signup a
 full join campaign_revenue b on a.signup_date=b.payment_date and a.source=b.source and a.campaign=b.campaign and a.signup_platform=b.pay_channel and a.signup_country=b.signup_country and a.first_user_landing_page=b.first_user_landing_page
-
-
-
-
-
-
-
-
-
