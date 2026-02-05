@@ -158,8 +158,8 @@ select
 	,case when campaign in ('None','unknown') then null else campaign end as campaign
 	,first_user_landing_page
 	,count(distinct case when b.rn=1 then a.uid else null end) as new_paid_users
-    ,round(sum(case when b.rn=1 then b.pay_amount/b.exchange_rate/100 else 0 end),2) as first_payment_rev -- [TEST] 首单收入：仅统计用户生命周期内第一笔订单的实付金额
-	,round(sum(b.pay_amount/b.exchange_rate/100),2) as cumulative_rev
+    ,round(sum(case when b.rn=1 then b.pay_amount/b.exchange_rate/100 else 0 end),2) as first_payment_rev 
+	,round(sum(b.pay_amount/b.exchange_rate/100),2) as cumulative_rev -- [TEST v2] 累计收入：历史所有订单的总实付金额
 from `dbt_models_details.user_details` a
 inner join order_table b on a.uid=b.uid
 where
