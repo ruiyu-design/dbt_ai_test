@@ -14,7 +14,11 @@ WITH source AS (
         event_name,
         timestamp_micros(event_timestamp) AS event_timestamp,
         parse_date('%Y%m%d',event_date) AS event_date_dt,
-        upper(device.operating_system) AS platform,
+        -- [修改点 1] 平台字段增加归类逻辑：区分 Mobile 和 Desktop
+        CASE 
+            WHEN upper(device.operating_system) IN ('ANDROID', 'IOS') THEN 'Mobile'
+            ELSE 'Web/Desktop'
+        END AS platform,
         device.mobile_brand_name as mobile_brand_name,
         device.mobile_model_name as mobile_model_name,
         device.operating_system_version as operating_system_version,
@@ -45,7 +49,10 @@ WITH source AS (
         CAST((SELECT value.int_value FROM UNNEST(event_params) WHERE key = 'error_type') AS INT64) AS error_type,
         CAST((SELECT value.string_value FROM UNNEST(event_params) WHERE key = 'smart_device_type') AS STRING) AS smart_device_type,
         CAST((SELECT value.int_value FROM UNNEST(event_params) WHERE key = 'trans_file_size') AS INT64) AS trans_file_size,
-        CAST((SELECT value.int_value FROM UNNEST(event_params) WHERE key = 'trans_duration') AS INT64) AS trans_duration,
+        
+        -- [修改点 2] 转写时长逻辑变更：将毫秒转换为秒，并处理空值
+        COALESCE(CAST((SELECT value.int_value FROM UNNEST(event_params) WHERE key = 'trans_duration') AS INT64), 0) / 1000 AS trans_duration_sec,
+        
         CAST((SELECT value.int_value FROM UNNEST(event_params) WHERE key = 'drop_count') AS INT64) AS drop_count,
         CAST((SELECT value.int_value FROM UNNEST(event_params) WHERE key = 'record_duration') AS INT64) AS record_duration,
         CAST((SELECT value.int_value FROM UNNEST(event_params) WHERE key = 'is_cache') AS INT64) AS is_cache,
