@@ -162,11 +162,11 @@ sources:
 # @value 1 "ali_app" - Alipay App payment
 # @value 2 "weixin" - WeChat QR code payment
 # @value 3 "paypal" - PayPal payment
-# @value 4 "all_pay" - Allpay payment
+# @value 4 "all_pay" - Allpay payment (Deprecated: Service Discontinued)
 # @value 5 "stripe" - Stripe payment
 # @value 6 "apple" - Apple Pay
 # @value 7 "google" - Google Pay
-# @value 8 "stripe_custom" - Stripe custom payment (currently in use)
+# @value 8 "stripe_unified" - Stripe Unified Payment Interface (New Standard)
 # @value 9 "weixin_app" - In-app WeChat payment
 # @value 10 "ali_qr" - Alipay QR code payment
 
@@ -175,4 +175,4 @@ sources:
 # - Channels 3, 4, and 5 are used for translation devices.
 # - Channel 6 is for Apple Pay.
 # - Channel 7 is for Google Pay.
-# - Channel 8 is for web payments.
+# - Channel 8 is for web payments (Replaces custom implementation).
