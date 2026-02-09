@@ -1,178 +1,172 @@
-version: 2
+-- 绑定硬件的user数据
 
-sources:
-  - name: Aurora
-    database: "{{ target.project }}"
-    schema: "{{ 'dev_mc_data_statistics' if target.name == 'dev' else 'notta_aurora' }}"
-    loader: DataStream
+-- user 首次绑定时间
+-- user 首次绑定ws
+-- user 首次绑定ws 当天的权益
+-- user 首次绑定ws 当天的权益是否试用
+-- user 绑定类型
+-- user 名下ws 首次发放starter plan 时间
+-- user 名下ws 首次从starter plan 升级时间
+-- user 当前绑定状态
+-- user 当前绑定wsid
 
-    tables:
-      - name: payment_center_order_table
-        description: Each record represents an invoice from a user
-        columns:
-          - name: id
-          - name: order_sn
-          - name: origin_order_sn
-          - name: uid
-          - name: db_channel
-          - name: goods_id
-          - name: goods_type
-          - name: pay_channel
-          - name: third_goods_id
-          - name: client_type
-          - name: bill_source
-          - name: goods_price
-          - name: goods_currency
-          - name: status
-          - name: is_trial
-          - name: trans_id
-          - name: origin_trans_id
-          - name: pay_amount
-          - name: pay_currency
-          - name: create_time
-          - name: update_time
-          - name: confirmation
-          - name: workspace_id
-          - name: private
-          - name: seats_size
-          - name: entry_time
-          - name: failure_time
-          - name: promotion_code
-      - name: langogo_user_space_users
-        description: Each record represents an registered user
-        columns:
-          - name: id
-          - name: uid
-          - name: username
-          - name: email
-          - name: phone
-          - name: area_code
-          - name: region
-          - name: account_type
-          - name: nickname
-          - name: gender
-          - name: avatar
-          - name: password
-          - name: status
-          - name: login_time
-          - name: web_login_status
-          - name: os_type
-          - name: create_time
-          - name: app_store_channel
-          - name: m5_pass
-          - name: client_version
-          - name: language
-          - name: mobile_id
-          - name: sha256_pass
-      - name: langogo_user_space_records
-        description: Each record represents a transliteration record
-      - name: langogo_user_space_records0
-      - name: langogo_user_space_records1
-      - name: langogo_user_space_records2
-      - name: langogo_user_space_records3
-      - name: langogo_user_space_records4
-      - name: langogo_user_space_records5
-      - name: langogo_user_space_records6
-      - name: langogo_user_space_records7
-      - name: langogo_user_space_records8
-      - name: langogo_user_space_records9
-      - name: langogo_user_space_records10
-      - name: langogo_user_space_records11
-      - name: langogo_user_space_records12
-      - name: langogo_user_space_records13
-      - name: langogo_user_space_records14
-      - name: langogo_user_space_records15
-      - name: langogo_user_space_records16
-      - name: langogo_user_space_records17
-      - name: langogo_user_space_records18
-      - name: langogo_user_space_records19
-      - name: langogo_user_space_records20
-      - name: langogo_user_space_records21
-      - name: langogo_user_space_records22
-      - name: langogo_user_space_records23
-      - name: langogo_user_space_records24
-      - name: langogo_user_space_records25
-      - name: langogo_user_space_records26
-      - name: langogo_user_space_records27
-      - name: langogo_user_space_records28
-      - name: langogo_user_space_records29
-      - name: langogo_user_space_records30
-      - name: langogo_user_space_records31
-      - name: langogo_user_space_records32
-      - name: user_extra
-        description: Real-time synchronization by the server, including the country and city where the user registered and the time of last subscription
-      - name: langogo_user_space_workspace
-        description: Each record represents a workspace
-      - name: langogo_user_space_workspace_setting
-        description: Each record represents a workspace setting
-      - name: notta_mall_interest_interest
-        description: Each record represents an interest
-      - name: notta_mall_interest_goods
-        description: Each record represents an goods
-      - name: langogo_user_space_member
-        description: Each record represents a member
-      - name: langogo_user_space_ai_tasks
-        description: Each record represents a task
-      - name: langogo_user_space_ai_prompts
-        description: Each record represents a prompt
-      - name: calendar_user_scheduler_event
-        description: Each record represents a event
-      - name: mc_data_analysis_meeting_analysis
-        description: Each record represents a meeting
-      - name: langogo_user_space_vocabulary
-        description: Each record represents a vocabulary
-      - name: langogo_user_space_third_login
-        description: Each record represents a third login
-      - name: langogo_user_space_agent_record_relation
-        description: Each record represents an agent record relation
-      - name: langogo_user_space_agents
-        description: Each record represents an AI agent
-      - name: langogo_user_space_agent_chat
-        description: Each record represents an agent chat
-      - name: langogo_user_space_agent_insight
-        description: Each record represents an agent insight
-      - name: langogo_user_space_integration_deals
-        description: Each record represents an integration deal
-      - name: langogo_user_space_integration_tasks
-        description: Each record represents an integration task
-      - name: langogo_user_space_resource_group
-        description: Each record represents a resource group
-  - name: Statistics
-    database: "{{ target.project }}"
-    schema: "{{ 'dev_mc_data_statistics' if target.name == 'dev' else 'mc_data_statistics' }}"
-    loader: DataStream
-    tables:
-      - name: notta_summary_ai_records
-        description: Each record represents a summary
-  - name: Ga4
-    database: "{{ target.project }}"
-    schema: "{{ 'dev_mc_data_statistics' if target.name == 'dev' else 'dbt_models_ga4' }}"
-    loader: Ga4
-    tables:
-      - name: stg_ga4__event_sign_up
-      - name: stg_ga4__event_keep_alive
-  - name: Hubspot
-    database: "{{ target.project }}"
-    schema: "{{ 'dev_mc_data_statistics' if target.name == 'dev' else 'notta_hubspot' }}"
-    loader: DataStream
-    tables:
-      - name: deals
-# ### --------------------------------- pay_channel --------------------------------- ###
-# @enum pay_channel
-# @value 1 "ali_app" - Alipay App payment
-# @value 2 "weixin" - WeChat QR code payment
-# @value 3 "paypal" - PayPal payment
-# @value 4 "all_pay" - Allpay payment (Deprecated: Service Discontinued)
-# @value 5 "stripe" - Stripe payment
-# @value 6 "apple" - Apple Pay
-# @value 7 "google" - Google Pay
-# @value 8 "stripe_unified" - Stripe Unified Payment Interface (New Standard)
-# @value 9 "weixin_app" - In-app WeChat payment
-# @value 10 "ali_qr" - Alipay QR code payment
+with user as ( -- 过滤内部用户取用户数据
+    select
+        uid
+        ,email
+        ,signup_date
+        ,signup_platform
+        ,case when signup_country in ('Japan','United States','unknown') then signup_country else 'Other' end as signup_country
+        ,date(first_paid_plan_start_time) as first_paid_date
+        ,is_paid
+    from dbt_models_details.user_details
+    where pt=date_add(date(current_timestamp()),interval -1 day)
 
-# Notes:
-# - Channels 1, 2, 9, and 10 are used for domestic apps.
-# - Channels 3, 4, and 5 are used for translation devices.
-# - Channel 6 is for Apple Pay.
-# - Channel 7 is for Google Pay.
-# - Channel 8 is for web payments (Replaces custom implementation).
+),
+
+smart_device_bind_user as ( -- user 首次绑定时间，当前绑定状态
+    select
+        a.uid
+        ,b.email
+        ,b.signup_platform
+        ,b.signup_country
+        ,b.signup_date
+        ,b.first_paid_date
+        ,b.is_paid
+        ,date(timestamp_seconds(min(bind_time))) as first_bind_date
+        ,min_by(starter_workspace_id,bind_time) as first_bind_ws_id
+        ,max_by(status,bind_time) as current_bind_status
+        ,max_by(case when status=1 then a.starter_workspace_id else null end,bind_time) as current_bind_ws_id
+    from `notta-data-analytics.notta_aurora.langogo_user_space_user_ai_device` a
+    inner join `notta-data-analytics.notta_aurora.langogo_user_space_ai_device_info` c on a.device_id=c.id and c.device_type=2 -- memo
+    inner join user b on a.uid=b.uid
+    group by
+        a.uid
+        ,b.email
+        ,b.signup_platform
+        ,b.signup_country
+        ,b.signup_date
+        ,b.first_paid_date
+        ,b.is_paid
+),
+
+upgrade_date as ( -- user own 的ws里 首次从starter 升级的日期 及 wsid
+    select
+        owner_uid as uid
+        ,min(case when a.goods_plan_type=0 then calendar_date else null end) as first_starter_plan_date
+        ,min(case when a.goods_plan_type!=0 and a.previous_goods_plan_type=0 then calendar_date else null end) as first_upgrade_from_starter_date
+        ,min_by(workspace_id,case when a.goods_plan_type!=0 and a.previous_goods_plan_type=0 then calendar_date else null end) as first_upgrade_from_starter_ws_id
+    from(
+        select
+         a.workspace_id
+         ,b.owner_uid
+         ,a.calendar_date
+         ,a.goods_plan_type
+         ,a.is_trial
+         ,lag(a.goods_plan_type) over(partition by a.workspace_id order by calendar_date asc) as previous_goods_plan_type
+        from `notta-data-analytics.dbt_models_details.workspace_daily_paid_plan` a
+        inner join `notta-data-analytics.notta_aurora.langogo_user_space_workspace` b on a.workspace_id=b.workspace_id
+        where calendar_date<=date(current_timestamp()) -- 取截止昨天的数据
+            and is_trial=0-- 排除试用
+            and b.status!=2-- 排除已删除
+        ) a
+    group by
+        owner_uid
+
+),
+
+user_memo_record as (
+
+select
+    found_uid as uid
+    ,date(min(a.create_date)) as first_memo_record_date
+from `dbt_models_details.stg_aurora_record` a
+left join `notta-data-analytics.notta_aurora.langogo_user_space_records_device_info` d ON a.record_id = d.record_id
+where
+a.media_source=8
+and (
+        d.device_brand = 'Memo'
+        or d.device_brand is null
+      )
+group by
+    found_uid
+),
+
+
+user_detail as (
+
+    select
+        b.uid
+        ,b.email
+        ,b.signup_date
+        ,b.signup_platform
+        ,b.signup_country
+        ,b.is_paid
+        ,b.first_paid_date
+        ,b.first_bind_date
+        ,b.first_bind_ws_id
+        ,e.first_memo_record_date
+        ,a.goods_plan_type as first_bind_date_plan_type
+        ,a.is_trial as first_bind_date_plan_is_trial
+        ,b.current_bind_ws_id
+        ,b.current_bind_status
+        ,d.goods_plan_type as current_bind_ws_plan_type
+        ,c.first_starter_plan_date
+        ,c.first_upgrade_from_starter_date
+        ,c.first_upgrade_from_starter_ws_id
+    from smart_device_bind_user b
+    left join `notta-data-analytics.dbt_models_details.workspace_daily_paid_plan` a on cast(a.workspace_id as int)=b.first_bind_ws_id and a.calendar_date=b.first_bind_date
+    left join `notta-data-analytics.dbt_models_details.workspace_daily_paid_plan` d on cast(d.workspace_id as int)=b.current_bind_ws_id and d.calendar_date=date_sub(date(current_timestamp()),interval 1 day)
+    left join upgrade_date c on c.uid=b.uid
+    left join user_memo_record e on e.uid=b.uid
+
+)
+
+select
+    uid
+    ,email
+    ,signup_date
+    ,signup_platform
+    ,signup_country
+    ,first_bind_date
+    ,first_bind_ws_id
+    ,case when first_memo_record_date is null then 0 else 1 end as is_create_memo_record
+    ,first_memo_record_date
+    ,case
+        when first_bind_date_plan_type is null then null
+        when first_bind_date_plan_type=0 then 'Starter'
+        when first_bind_date_plan_type=1 then 'Pro'
+        when first_bind_date_plan_type=2 then 'Biz'
+        when first_bind_date_plan_type=3 then 'Enterprise'
+        else 'unknown'
+        end as first_bind_date_plan_type
+    ,first_bind_date_plan_is_trial
+    ,current_bind_ws_id
+    ,case
+        when current_bind_status=0 then 'Unbind'
+        when current_bind_status=1 then 'Binding'
+        when current_bind_status=2 then 'Unbinding'
+        else 'else'
+    end as current_bind_status
+    ,case
+        when current_bind_ws_plan_type is null then null
+        when current_bind_ws_plan_type=0 then 'Starter'
+        when current_bind_ws_plan_type=1 then 'Pro'
+        when current_bind_ws_plan_type=2 then 'Biz'
+        when current_bind_ws_plan_type=3 then 'Enterprise'
+        else 'unknown'
+        end as current_bind_ws_plan_type
+    ,first_starter_plan_date
+    ,first_upgrade_from_starter_date
+    ,first_upgrade_from_starter_ws_id
+    ,is_paid
+    ,first_paid_date
+    ,case 
+        -- [TEST MODIFY] 再次修改：将 New User 的定义放宽到 30 天 (月度统计口径)
+        when date_diff(first_bind_date,signup_date,DAY)<=30 then 'New User'
+        when date_diff(first_bind_date,signup_date,DAY)>30 and is_paid=0 and first_bind_date_plan_type>1 and first_bind_date_plan_is_trial=0 then 'Existing WS Member'
+        when date_diff(first_bind_date,signup_date,DAY)>30 and (is_paid=0 or first_paid_date>first_bind_date) then 'Existing Free User'
+        when date_diff(first_bind_date,signup_date,DAY)>30 and is_paid=1 and first_paid_date<=first_bind_date and first_bind_date_plan_type!=0 and first_bind_date_plan_is_trial=0 then 'Existing Paying User'
+        when date_diff(first_bind_date,signup_date,DAY)>30 and is_paid=1 and first_paid_date<first_bind_date  then 'Churned User'
+    else 'Other Old User' end as bind_user_type
+from user_detail
