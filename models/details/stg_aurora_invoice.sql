@@ -47,7 +47,15 @@ transformed_data AS (
         is_trial,
         order_sn AS invoice_id,
         status,
-        pay_channel AS channel,
+        
+        -- [修改点] 将支付渠道 ID 转换为可读名称
+        CASE 
+            WHEN pay_channel = 6 THEN 'Apple Pay'
+            WHEN pay_channel = 7 THEN 'Google Pay'
+            WHEN pay_channel = 8 THEN 'Stripe'
+            ELSE 'Unknown'
+        END AS channel,
+
         pay_amount AS amount,
         pay_currency AS currency,
         seats_size,
