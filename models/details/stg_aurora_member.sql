@@ -26,7 +26,15 @@ WITH member AS (
 SELECT
     workspace_id,
     status,
-    role,
+    
+    -- [修改点] 将角色 ID 转换为具体业务名称
+    CASE 
+        WHEN role = 1 THEN 'Owner'
+        WHEN role = 2 THEN 'Admin'
+        WHEN role = 3 THEN 'Member'
+        ELSE 'Guest' 
+    END AS role,
+
     weekly_insight_switch
 FROM
     member
