@@ -21,7 +21,15 @@ SELECT
     workspace_id,
     created_at,
     task_id,
-    type,
+    
+    -- [修改点] 增加业务逻辑：将原始类型代码转换为更清晰的业务名称
+    CASE 
+        WHEN type = 'general' THEN 'System Global Prompt'
+        WHEN type = 'custom' THEN 'User Custom Prompt'
+        WHEN type = 'private' THEN 'Private Workspace Prompt'
+        ELSE 'Unknown Type'
+    END AS type,
+
     title,
     uid
 FROM
